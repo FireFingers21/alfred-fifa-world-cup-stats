@@ -48,7 +48,7 @@ jq -cs \
 				"variables": { "favTeamNew": .Team.ShortClubName }
 			}}
 		}) | ([
-		    (.[] | select((.variables.seq) == 1)) | (.variables.groupName) as $groupName | ({
+		    (unique_by(.variables.groupName)[] | select((.variables.seq) == 1)) | (.variables.groupName) as $groupName | ({
 				"title":"————————  \($groupName)  ————————",
 				"icon":{"path":"images/\($tournamentIcon).png"},
 				"match":[$groupName, ($groupSeqs[], $groupTeams[] | ."\($groupName)")] | map(select(.)) | join(" "),
