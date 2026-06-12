@@ -34,7 +34,7 @@ jq -cs \
 		(.Home | .ShortClubName // .TeamName[0].Description // "") as $homeClubName |
 		(.Away | .ShortClubName // .TeamName[0].Description // "") as $awayClubName |
 		($spoilSchedule == 0 and .StageName[0].Description != "First stage") as $spoiler |
-		(if (.MatchStatus == 2) then "Now"+" "*8 else false end) as $isNow |
+		(if (.MatchStatus > 1) or (.MatchStatus != 0 and now >= (.Date|fromdate) and now < (.Date|fromdate+6000)) then "Now"+" "*8 else false end) as $isNow |
 		(if (.MatchStatus == 0) then "Done"+" "*7 else false end) as $isDone |
 		((if ($showDoneTime != 1) then $isDone else false end) // (if ($showNowTime != 1) then $isNow else false end) // (.Date | fromdate | strflocaltime("%H:%M") | .+" "*(if (gsub("[^1]";"")|length > 1) then 7 else 6 end))) as $localStartTime |
 		(if ($spoiler or .Home == null) then .PlaceHolderA else $nocDict[].emoji."\(.Home.IdCountry)" + " \($homeClubName) \(if ($spoilSchedule == 1 and .OfficialityStatus != null and .Winner == .Home.IdTeam) then "✓" else "" end)" end) as $competitorHome |
