@@ -2,8 +2,7 @@
 
 # Get time since last reload in minutes
 stats_file="${alfred_workflow_data}/${seasonYear}/stats.json"
-[[ -f "${stats_file}" ]] && date_file="${stats_file}" || date_file="${alfred_workflow_data}"
-minutes="$((($(date +%s)-$(date -r "${date_file}" +%s))/60))"
+minutes="$((($(date +%s)-$(date -r "${alfred_workflow_data}" +%s))/60))"
 
 # Download Stats Data
 if [[ "${forceReload}" -eq 1 || "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" ]]; then
@@ -23,26 +22,26 @@ elif [[ ${minutes} -ge 60 && ${minutes} -lt 120 ]]; then
 elif [[ ${minutes} -ge 120 && ${minutes} -lt 1440 ]]; then
     lastUpdated="$((${minutes}/60)) hours ago"
 else
-    lastUpdated="$(date -r "${date_file}" +'%Y-%m-%d')"
+    lastUpdated="$(date -r "${alfred_workflow_data}" +'%Y-%m-%d')"
 fi
 
 # Format Stats to Markdown
 if [[ -f "${stats_file}" ]]; then
     mdOutput=$(jq -crs --arg countryId "${countryId}" --arg teamId "${teamId}" --arg teamName "${teamName}" --arg icons_dir "${icons_dir}" \
-    '.[]."\($teamId)" | map({(.[0]): .[1]}) | add | 50 as $spaces |
+    '.[]."\($teamId)" | if (.) then map({(.[0]): .[1]}) | add | 50 as $spaces |
         "![Team Logo](\($icons_dir)/\($countryId)small.png)\n",
         "# \($teamName)",
-        "\n**Matches Played:** \(.MatchesPlayed)      ·      **Time Played:** \(.TimePlayed) minutes",
+        "\n**Matches Played:** \(.MatchesPlayed)      ·      **Time Played:** \(.TimePlayed | if (.) then "\(.|round) minutes" else "null" end)",
         "\n***\n\n### Attacking\n\n```",
         ("Goals:"|.+" "*($spaces-length))+"\(.Goals)",
         ("Assists:"|.+" "*($spaces-length))+"\(.Assists)",
-        ("Attempts At Goal (On Target %):"|.+" "*($spaces-length))+"\(.AttemptAtGoal) (\(.AttemptAtGoalOnTarget/.AttemptAtGoal*100|round)%)",
+        ("Attempts At Goal (On Target %):"|.+" "*($spaces-length))+(if (.AttemptAtGoal) then "\(.AttemptAtGoal) (\(.AttemptAtGoalOnTarget/.AttemptAtGoal*100|round)%)" else "null" end),
         ("Attempts At Goal Inside The Penalty Area:"|.+" "*($spaces-length))+"\(.AttemptAtGoalInsideThePenaltyArea)",
         ("Attempts At Goal Outside The Penalty Area:"|.+" "*($spaces-length))+"\(.AttemptAtGoalOutsideThePenaltyArea)",
-        ("Penalties (Scored):"|.+" "*($spaces-length))+"\(.Penalties) (\(.PenaltiesScored))",
+        ("Penalties (Scored):"|.+" "*($spaces-length))+(if (.Penalties) then "\(.Penalties) (\(.PenaltiesScored))" else "null" end),
         ("Free Kicks:"|.+" "*($spaces-length))+"\(.FreeKicks)",
         ("Corners:"|.+" "*($spaces-length))+"\(.Corners)",
-        ("Crosses (Completed %):"|.+" "*($spaces-length))+"\(.Crosses) (\(.CrossesCompleted/.Crosses*100|round)%)",
+        ("Crosses (Completed %):"|.+" "*($spaces-length))+(if (.Crosses) then "\(.Crosses) (\(.CrossesCompleted/.Crosses*100|round)%)" else "null" end),
         "```\n\n### Defending\n\n```",
         ("Goals Conceded:"|.+" "*($spaces-length))+"\(.GoalsConceded)",
         ("Own Goals:"|.+" "*($spaces-length))+"\(.OwnGoals)",
@@ -53,17 +52,19 @@ if [[ -f "${stats_file}" ]]; then
         ("Forced Turnovers:"|.+" "*($spaces-length))+"\(.ForcedTurnovers)",
         ("Pressing Applied:"|.+" "*($spaces-length))+"\(.DefensivePressuresApplied)",
         "```\n\n### Possession\n\n```",
-        ("Passes (Completed %):"|.+" "*($spaces-length))+"\(.Passes) (\(.PassesCompleted/.Passes*100|round)%)",
-        ("Distributions Under Pressure (Completed %):"|.+" "*($spaces-length))+"\(.DistributionsUnderPressure) (\(.DistributionsCompletedUnderPressure/.DistributionsUnderPressure*100|round)%)",
-        ("Attempted Switches of Play (Completed):"|.+" "*($spaces-length))+"\(.AttemptedSwitchesOfPlay) (\(.CompletedSwitchesOfPlay))",
-        ("Linebreaks Attempted (Completed):"|.+" "*($spaces-length))+"\(.LinebreaksAttempted) (\(.LinebreaksAttemptedCompleted))",
+        ("Passes (Completed %):"|.+" "*($spaces-length))+(if (.Passes) then "\(.Passes) (\(.PassesCompleted/.Passes*100|round)%)" else "null" end),
+        ("Distributions Under Pressure (Completed %):"|.+" "*($spaces-length))+(if (.DistributionsUnderPressure) then "\(.DistributionsUnderPressure) (\(.DistributionsCompletedUnderPressure/.DistributionsUnderPressure*100|round)%)" else "null" end),
+        ("Attempted Switches of Play (Completed):"|.+" "*($spaces-length))+(if (.AttemptedSwitchesOfPlay) then "\(.AttemptedSwitchesOfPlay) (\(.CompletedSwitchesOfPlay))" else "null" end),
+        ("Linebreaks Attempted (Completed):"|.+" "*($spaces-length))+(if (.LinebreaksAttempted) then "\(.LinebreaksAttempted) (\(.LinebreaksAttemptedCompleted))" else "null" end),
         "```\n\n### Disciplinary\n\n```",
         ("Red Cards:"|.+" "*($spaces-length))+"\(.RedCards)",
         ("Yellow Cards:"|.+" "*($spaces-length))+"\(.YellowCards)",
         ("Offsides:"|.+" "*($spaces-length))+"\(.Offsides)",
-        ("Fouls For/Against:"|.+" "*($spaces-length))+"\(.FoulsFor)/\(.FoulsAgainst)",
+        ("Fouls For/Against:"|.+" "*($spaces-length))+"\(.FoulsFor) / \(.FoulsAgainst)",
         "```"
-    ' "${stats_file}" | sed 's/\"/\\"/g')
+    else
+        "![Team Logo](\($icons_dir)/\($countryId)small.png)\n# \($teamName)\n\n**Matches Played:** N/A      ·      **Time Played:** N/A\n\n***\n\n*No Team Stats available*"
+    end' "${stats_file}" | sed 's/\"/\\"/g')
 else
     mdOutput="![Team Logo](${icons_dir}/${countryId}small.png)\n# ${teamName}\n\n**Matches Played:** N/A      ·      **Time Played:** N/A\n\n***\n\n*No Team Stats available*"
 fi
