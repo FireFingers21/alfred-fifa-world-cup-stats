@@ -14,6 +14,7 @@ View the current [FIFA World Cup](https://www.fifa.com/worldcup) schedule via th
 
 * <kbd>↩</kbd> Open Match in Browser.
 * <kbd>⌥</kbd><kbd>↩</kbd> Show/Hide Old Matches.
+* <kbd>⌃</kbd><kbd>↩</kbd> Show/Hide Spoilers.
 
 Use the `fifa` keyword to view the current World Cup Standings. Type to filter by Country, Position, or Group.
 

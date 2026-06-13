@@ -53,11 +53,17 @@ jq -cs \
                 (if ($isFavourite) then "favourite" else "" end)
             ] | map(select(.)) | join(" "),
 			"icon": { "path": "images/\(if ($isFavourite) then "favourite" else $tournamentIcon end)\(if $isNow then "live" elif $isDone then "done" else "" end).png" },
-			"stale": ((now - (.Date|fromdate)) > (12*3600)),
-			"mods": {"alt": {
-			    "subtitle":(.Date | fromdate | strflocaltime("%b %d")+" "*12+"⌥↩ \(if ($showOldEvents == 1) then "Hide" else "Show" end) old events"),
-				"variables": { "showOldEvents":($showOldEvents == 1 | not) }
-			}}
+			"stale": ((now - $Date) > (36*3600)),
+			"mods": {
+			    "alt": {
+			        "subtitle":"\($subDate)⌥↩ \(if ($showOldEvents == 1) then "Hide" else "Show" end) old matches",
+					"variables": { "showOldEvents":($showOldEvents == 1 | not) }
+				},
+			    "ctrl": {
+			        "subtitle":"\($subDate)⌥↩ \(if ($spoilSchedule == 1) then "Hide" else "Show" end) spoilers",
+					"variables": { "spoilSchedule":($spoilSchedule == 1 | not) }
+				}
+			}
 		}) | select($showOldEvents == 1 or isempty(.[] | select(.stale | not))) // [.[] | select(.stale | not)]
 	else
 		[{
