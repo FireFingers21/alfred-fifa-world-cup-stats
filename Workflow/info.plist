@@ -798,7 +798,7 @@ if ($.getenv("favTeamNew") === $.getenv("favTeam")) {
 				<key>spaces</key>
 				<string></string>
 				<key>url</key>
-				<string></string>
+				<string>https://www.fifa.com/en/match-centre/match/{query}</string>
 			</dict>
 			<key>type</key>
 			<string>alfred.workflow.action.openurl</string>
@@ -1079,7 +1079,16 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>180</real>
 			<key>ypos</key>
-			<real>465</real>
+			<real>460</real>
+		</dict>
+		<key>0DD1E24C-ADA8-4222-9628-F5EDA7E36E0E</key>
+		<dict>
+			<key>colorindex</key>
+			<integer>3</integer>
+			<key>xpos</key>
+			<real>405</real>
+			<key>ypos</key>
+			<real>400</real>
 		</dict>
 		<key>141CD8DA-5E89-410E-BDBC-92E694A86FC4</key>
 		<dict>
@@ -1106,7 +1115,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>580</real>
 			<key>ypos</key>
-			<real>760</real>
+			<real>755</real>
 		</dict>
 		<key>241A366E-E084-4CBD-B319-632AF3CF787B</key>
 		<dict>
@@ -1115,7 +1124,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>315</real>
 			<key>ypos</key>
-			<real>730</real>
+			<real>725</real>
 		</dict>
 		<key>27EBBA94-E672-42ED-8DD9-4CAEB06B16DE</key>
 		<dict>
@@ -1133,14 +1142,14 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>180</real>
 			<key>ypos</key>
-			<real>885</real>
+			<real>880</real>
 		</dict>
 		<key>36BC2A5D-75B1-48EA-8B8E-465794BFE78D</key>
 		<dict>
 			<key>xpos</key>
 			<real>670</real>
 			<key>ypos</key>
-			<real>760</real>
+			<real>755</real>
 		</dict>
 		<key>4700133B-A9CC-4AC2-A73F-FF3D0F475FE8</key>
 		<dict>
@@ -1158,7 +1167,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>30</real>
 			<key>ypos</key>
-			<real>465</real>
+			<real>460</real>
 		</dict>
 		<key>4F7CABD6-D623-41A1-BFEF-8DA9405D12EA</key>
 		<dict>
@@ -1178,7 +1187,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>450</real>
 			<key>ypos</key>
-			<real>560</real>
+			<real>555</real>
 		</dict>
 		<key>6BD87380-5612-4D8E-95E3-355E102871F7</key>
 		<dict>
@@ -1187,7 +1196,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>630</real>
 			<key>ypos</key>
-			<real>375</real>
+			<real>370</real>
 		</dict>
 		<key>7FA9BFFC-366D-4872-9979-8DBF3A13B495</key>
 		<dict>
@@ -1207,7 +1216,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>345</real>
 			<key>ypos</key>
-			<real>405</real>
+			<real>400</real>
 		</dict>
 		<key>9C7EF758-C860-4275-AC49-B8DE4B019A03</key>
 		<dict>
@@ -1227,7 +1236,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>450</real>
 			<key>ypos</key>
-			<real>730</real>
+			<real>725</real>
 		</dict>
 		<key>B20D1D12-7313-4ABE-A470-4DCB8300E9E1</key>
 		<dict>
@@ -1254,7 +1263,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>450</real>
 			<key>ypos</key>
-			<real>450</real>
+			<real>445</real>
 		</dict>
 		<key>CFE47109-8F46-4517-904B-55F306FD441C</key>
 		<dict>
@@ -1263,7 +1272,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>345</real>
 			<key>ypos</key>
-			<real>485</real>
+			<real>480</real>
 		</dict>
 		<key>D152973B-1A3C-423C-A1E7-12B72B2B19E2</key>
 		<dict>
@@ -1274,7 +1283,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>30</real>
 			<key>ypos</key>
-			<real>880</real>
+			<real>875</real>
 		</dict>
 		<key>D4C5F95B-CA8E-4CE6-B248-3600C8E276CC</key>
 		<dict>
@@ -1283,7 +1292,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 			<key>xpos</key>
 			<real>315</real>
 			<key>ypos</key>
-			<real>880</real>
+			<real>875</real>
 		</dict>
 		<key>F14E3EF2-D711-4289-A92A-73C17F07CF8A</key>
 		<dict>
@@ -1349,7 +1358,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 				<key>required</key>
 				<false/>
 				<key>text</key>
-				<string>Always show time of Live events</string>
+				<string>Always show time of Live matches</string>
 			</dict>
 			<key>description</key>
 			<string></string>
@@ -1368,7 +1377,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 				<key>required</key>
 				<false/>
 				<key>text</key>
-				<string>Always show time of Finished events</string>
+				<string>Always show time of Finished matches</string>
 			</dict>
 			<key>description</key>
 			<string></string>

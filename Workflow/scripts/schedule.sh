@@ -1,9 +1,7 @@
 #!/bin/zsh --no-rcs
 
 # Get current/selected season
-next_season_file="${alfred_workflow_data}/nextMatchSeason.json"
-prev_season_file="${alfred_workflow_data}/prevMatchSeason.json"
-seasonYear="$(jq -rs 'if (((.[0].Results[0].Date | fromdate) - now) < 7889238) then .[0] else .[1] end | .Results[0].Date[:4]' "${next_season_file}" "${prev_season_file}")"
+seasonYear="$(jq -rs 'if (((.[0].Results[0].Date | fromdate) - now) < 7889238) then .[0] else .[1] end | .Results[0].Date[:4]' "${alfred_workflow_data}/nextMatchSeason.json" "${alfred_workflow_data}/prevMatchSeason.json")"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
 
 # Auto Update
@@ -12,8 +10,7 @@ set -o extendedglob
 && [[ "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" || ! -d "${alfred_workflow_data}/${seasonYear}" ]] && reload=$(./scripts/reload.sh)
 
 # Get icon for current tournament if present
-tournamentIcon="tournaments/${seasonYear}"
-[[ -f "images/${tournamentIcon}.png" ]] || tournamentIcon="fifa"
+[[ -f "images/tournaments/${seasonYear}.png" ]] && tournamentIcon="${seasonYear}" || tournamentIcon="fifa"
 
 # Load Schedule
 jq -cs \
@@ -23,7 +20,7 @@ jq -cs \
    --argjson showNowTime "${showNowTime}" \
    --argjson showDoneTime "${showDoneTime}" \
    --argjson showOldEvents "${showOldEvents:=0}" \
-   --arg tournamentIcon "${tournamentIcon}" \
+   --arg tournamentIcon "tournaments/${tournamentIcon}" \
    --arg favTeam "$(iconv -f UTF-8-MAC -t UTF-8 <<< ${(L)favTeam})" \
    --slurpfile nocDict "nocDict.json" \
 '{
@@ -33,22 +30,25 @@ jq -cs \
 		.[].Results | map(
 		(.Home | .ShortClubName // .TeamName[0].Description // "") as $homeClubName |
 		(.Away | .ShortClubName // .TeamName[0].Description // "") as $awayClubName |
-		($spoilSchedule == 0 and .StageName[0].Description != "First stage") as $spoiler |
-		(if (.MatchStatus > 1) or (.MatchStatus != 0 and now >= (.Date|fromdate) and now < (.Date|fromdate+6000)) then "Now"+" "*8 else false end) as $isNow |
+		(.Date | fromdate) as $Date |
+		($Date | strflocaltime("%b %d") + " "*12) as $subDate |
+		($spoilSchedule == 0 and (.StageName[0].Description|ascii_downcase) != "first stage") as $spoiler |
+		(if (.MatchStatus > 1) or (.MatchStatus != 0 and now >= ($Date) and now < ($Date+7200)) then "Now"+" "*8 else false end) as $isNow |
 		(if (.MatchStatus == 0) then "Done"+" "*7 else false end) as $isDone |
-		((if ($showDoneTime != 1) then $isDone else false end) // (if ($showNowTime != 1) then $isNow else false end) // (.Date | fromdate | strflocaltime("%H:%M") | .+" "*(if (gsub("[^1]";"")|length > 1) then 7 else 6 end))) as $localStartTime |
+		((if ($showDoneTime != 1) then $isDone else false end) // (if ($showNowTime != 1) then $isNow else false end) // ($Date | strflocaltime("%H:%M") | .+" "*(if (split("1")|length>2) then 7 else 6 end))) as $localStartTime |
 		(if ($spoiler or .Home == null) then .PlaceHolderA else $nocDict[].emoji."\(.Home.IdCountry)" + " \($homeClubName) \(if ($spoilSchedule == 1 and .OfficialityStatus != null and .Winner == .Home.IdTeam) then "✓" else "" end)" end) as $competitorHome |
 		(if ($spoiler or .Away == null) then .PlaceHolderB else $nocDict[].emoji."\(.Away.IdCountry)" + " \($awayClubName) \(if ($spoilSchedule == 1 and .OfficialityStatus != null and .Winner == .Away.IdTeam) then "✓" else "" end)" end) as $competitorAway |
 		($favTeam != "" and (($homeClubName|ascii_downcase) == $favTeam or ($awayClubName|ascii_downcase) == $favTeam)) as $isFavourite |
 		{
 			"title": "\($localStartTime)\($competitorHome)  /  \($competitorAway)",
-			"subtitle": "\(.Date | fromdate | strflocaltime("%b %d") + " "*12)\(.StageName[0].Description)   –   \(.GroupName[0].Description | if (.) then "\(.)   –   " else "" end)\(.Stadium.Name[0].Description)",
-			"arg": "https://www.fifa.com/en/match-centre/match/\(.IdCompetition)/\(.IdSeason)/\(.IdStage)/\(.IdMatch)",
+			"subtitle": "\($subDate)\(.StageName[0].Description)   –   \(.GroupName[0].Description | if (.) then "\(.)   –   " else "" end)\(.Stadium.Name[0].Description)",
+			"arg": "\(.IdCompetition)/\(.IdSeason)/\(.IdStage)/\(.IdMatch)",
 			"match": [
-                .StageName[0].Description, "\"\(.GroupName[0].Description // "")\"", "\"\(.Stadium.Name[0].Description)\"", "\"\(.Stadium.CityName[0].Description)\"",
-                (if (($spoiler | not) or $spoilSearch == 1) then (.Home, .Away | .ShortClubName // .TeamName[0].Description) else "" end),
+                .StageName[0].Description, "\"\(.Stadium.Name[0].Description)\"", "\"\(.Stadium.CityName[0].Description)\"",
+                (if (($spoiler | not) or $spoilSearch == 1) then ($homeClubName, $awayClubName) else "" end),
+                (.GroupName[0].Description | if (.) then "\"\(.)\"" else "" end),
                 (if ((.StageName[0].Description|ascii_downcase) != "first stage") then "knockout" else "" end),
-                (.Date | fromdate | strflocaltime("\"%B %d\"%e\"")),
+                ($Date | strflocaltime("\"%B %d\"%e\"")),
                 (if ($isNow) then "live now" elif ($isDone) then "finished done" else "upcoming" end),
                 (if ($isFavourite) then "favourite" else "" end)
             ] | map(select(.)) | join(" "),

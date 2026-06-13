@@ -1,9 +1,7 @@
 #!/bin/zsh --no-rcs
 
 # Get current/selected season
-next_season_file="${alfred_workflow_data}/nextMatchSeason.json"
-prev_season_file="${alfred_workflow_data}/prevMatchSeason.json"
-seasonYear="$(jq -rs 'if (((.[0].Results[0].Date | fromdate) - now) < 7889238) then .[0] else .[1] end | .Results[0].Date[:4]' "${next_season_file}" "${prev_season_file}")"
+seasonYear="$(jq -rs 'if (((.[0].Results[0].Date | fromdate) - now) < 7889238) then .[0] else .[1] end | .Results[0].Date[:4]' "${alfred_workflow_data}/nextMatchSeason.json" "${alfred_workflow_data}/prevMatchSeason.json")"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
 
 # Auto Update
@@ -12,15 +10,14 @@ set -o extendedglob
 && [[ "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" || ! -d "${alfred_workflow_data}/${seasonYear}" ]] && reload=$(./scripts/reload.sh)
 
 # Get icon for current tournament if present
-tournamentIcon="tournaments/${seasonYear}"
-[[ -f "images/${tournamentIcon}.png" ]] || tournamentIcon="fifa"
+[[ -f "images/tournaments/${seasonYear}.png" ]] && tournamentIcon="${seasonYear}" || tournamentIcon="fifa"
 
 # Load Standings
 jq -cs \
    --arg alfred_workflow_keyword "${alfred_workflow_keyword}" \
    --arg seasonYear "${seasonYear}" \
    --arg icons_dir "images/flags" \
-   --arg tournamentIcon "${tournamentIcon}" \
+   --arg tournamentIcon "tournaments/${tournamentIcon}" \
    --arg favTeam "$(iconv -f UTF-8-MAC -t UTF-8 <<< ${(L)favTeam})" \
 '{
     "variables": {
@@ -34,7 +31,7 @@ jq -cs \
 		(map({(.Group[0].Description): .Position})) as $groupSeqs |
 		(map({(.Group[0].Description): .Team.Name[0].Description})) as $groupTeams |
 		map(((.Team.ShortClubName|ascii_downcase) == $favTeam) as $isFavourite | {
-			"title": "\(.Position)  \(.Team.ShortClubName)",
+			"title": "\(.Position)  \(.Team.ShortClubName)  \(if ((.Team.ShortClubName|ascii_downcase) == $favTeam) then "★" else "" end)",
 			"subtitle": "P: \(.Played)    [ W: \(.Won)  D: \(.Drawn)  L: \(.Lost)      GF: \(.For)  GA: \(.Against)  GD: \(.GoalsDiference) ]    Pts: \(.Points)",
 			"arg": "stats",
 			"match": [
@@ -51,13 +48,14 @@ jq -cs \
 		    (unique_by(.variables.groupName)[] | select((.variables.seq) == 1)) | (.variables.groupName) as $groupName | ({
 				"title":"————————  \($groupName)  ————————",
 				"icon":{"path":"images/\($tournamentIcon).png"},
-				"match":[$groupName, ($groupSeqs[], $groupTeams[] | ."\($groupName)")] | map(select(.)) | join(" "),
+				"match": [
+				    $groupName, ($groupSeqs[], $groupTeams[] | ."\($groupName)")
+				] | map(select(.)) | join(" "),
 				"variables":.variables, "valid": false
 			}) | (.variables.seq |= 0)
 		]+.)
 		| sort_by(.variables.groupName, .variables.seq)
 		| [(.[] | select(.variables.seq != 0 and (.variables.teamName|ascii_downcase) == $favTeam)) | (.match |= "")] + .
-		| [(.[] | if ((.variables.seq != 0) and (.variables.teamName|ascii_downcase) == $favTeam) then (.title |= .+"  ★") end)]
 	else
 		[{
 			"title": "No Standings Found",
