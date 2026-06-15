@@ -19,15 +19,15 @@ set -o extendedglob
 # Load Standings
 jq -cs \
    --arg alfred_workflow_keyword "${alfred_workflow_keyword}" \
-   --arg seasonYear "${seasonYear}" \
-   --arg icons_dir "images/flags" \
-   --arg tournamentIcon "tournaments/${tournamentIcon}" \
    --arg favTeam "$(iconv -f UTF-8-MAC -t UTF-8 <<< ${(L)favTeam})" \
+   --arg icons_dir "images/flags" \
+   --arg seasonYear "${seasonYear}" \
+   --arg tournamentIcon "tournaments/${tournamentIcon}" \
 '{
     "variables": {
         "keyword": $alfred_workflow_keyword,
-        "seasonYear": $seasonYear,
-        "icons_dir": $icons_dir
+        "icons_dir": $icons_dir,
+        "seasonYear": $seasonYear
     },
     "skipknowledge": true,
 	"items": (if (length != 0) then

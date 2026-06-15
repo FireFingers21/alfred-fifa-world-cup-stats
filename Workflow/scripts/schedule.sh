@@ -19,13 +19,13 @@ set -o extendedglob
 # Load Schedule
 jq -cs \
    --arg alfred_workflow_keyword "${alfred_workflow_keyword}" \
+   --arg favTeam "$(iconv -f UTF-8-MAC -t UTF-8 <<< ${(L)favTeam})" \
+   --arg tournamentIcon "tournaments/${tournamentIcon}" \
    --argjson spoilSchedule "${spoilSchedule}" \
    --argjson spoilSearch "${spoilSearch}" \
    --argjson showNowTime "${showNowTime}" \
    --argjson showDoneTime "${showDoneTime}" \
    --argjson showOldEvents "${showOldEvents:=0}" \
-   --arg tournamentIcon "tournaments/${tournamentIcon}" \
-   --arg favTeam "$(iconv -f UTF-8-MAC -t UTF-8 <<< ${(L)favTeam})" \
    --slurpfile nocDict "nocDict.json" \
 '{
     "variables": { "keyword": $alfred_workflow_keyword },
@@ -40,8 +40,8 @@ jq -cs \
 		(if (.MatchStatus > 1) or (.MatchStatus != 0 and now >= ($Date) and now < ($Date+7200)) then "Now"+" "*8 else false end) as $isNow |
 		(if (.MatchStatus == 0) then "Done"+" "*7 else false end) as $isDone |
 		((if ($showDoneTime != 1) then $isDone else false end) // (if ($showNowTime != 1) then $isNow else false end) // ($Date | strflocaltime("%H:%M") | .+" "*(if (split("1")|length>2) then 7 else 6 end))) as $localStartTime |
-		(if ($spoiler or .Home == null) then .PlaceHolderA else $nocDict[].emoji."\(.Home.IdCountry)" + " \($homeClubName) \(if ($spoilSchedule == 1 and .OfficialityStatus != null and .Winner == .Home.IdTeam) then "✓" else "" end)" end) as $competitorHome |
-		(if ($spoiler or .Away == null) then .PlaceHolderB else $nocDict[].emoji."\(.Away.IdCountry)" + " \($awayClubName) \(if ($spoilSchedule == 1 and .OfficialityStatus != null and .Winner == .Away.IdTeam) then "✓" else "" end)" end) as $competitorAway |
+		(if ($spoiler or .Home == null) then .PlaceHolderA else $nocDict[0].emoji."\(.Home.IdCountry)" + " \($homeClubName)\(if ($spoilSchedule == 1 and .Home.Score != null) then "    \(.Home.Score)" else "" end)" end) as $competitorHome |
+		(if ($spoiler or .Away == null) then .PlaceHolderB else (if ($spoilSchedule == 1 and .Away.Score != null) then "\(.Away.Score)    " else "" end) + $nocDict[0].emoji."\(.Away.IdCountry)" + " \($awayClubName)" end) as $competitorAway |
 		($favTeam != "" and (($homeClubName|ascii_downcase) == $favTeam or ($awayClubName|ascii_downcase) == $favTeam)) as $isFavourite |
 		{
 			"title": "\($localStartTime)\($competitorHome)  /  \($competitorAway)",
