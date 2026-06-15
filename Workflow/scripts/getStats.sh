@@ -5,7 +5,7 @@ stats_file="${alfred_workflow_data}/${seasonYear}/stats.json"
 minutes="$((($(date +%s)-$(date -r "${alfred_workflow_data}" +%s))/60))"
 
 # Download Stats Data
-if [[ "${forceReload}" -eq 1 || "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" ]]; then
+if [[ "${forceReload}" -eq 1 ]]; then
     # Rate limit to only refresh if data is older than 1 minute
     [[ "${minutes}" -gt 0 || -z "${minutes}" ]] && reload=$(./scripts/reload.sh) && minutes=0
 fi

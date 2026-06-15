@@ -1,13 +1,17 @@
 #!/bin/zsh --no-rcs
 
 # Get current/selected season
-seasonYear="$(jq -rs 'if (((.[0].Results[0].Date | fromdate) - now) < 7889238) then .[0] else .[1] end | .Results[0].Date[:4]' "${alfred_workflow_data}/nextMatchSeason.json" "${alfred_workflow_data}/prevMatchSeason.json")"
+currentYear="$(date +%Y)"
+seasonYear="$((currentYear - (currentYear - 1930) % 4))"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
+
+# Limit Auto Update
+[[ -f "${seasonDir}/schedule.json" ]] && gamesFinished="$(jq '.Results | all(.OfficialityStatus == 1)' "${seasonDir}/schedule.json")"
 
 # Auto Update
 set -o extendedglob
-[[ -f ${alfred_workflow_data}/*/*(#i)standings.json(#qNY1) ]] \
-&& [[ "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" || ! -d "${alfred_workflow_data}/${seasonYear}" ]] && reload=$(./scripts/reload.sh)
+[[ -f ${alfred_workflow_data}/*/*(#i)standings.json(#qNY1) && "${gamesFinished:=false}" = false ]] \
+&& [[ "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" || ! -d "${seasonDir}" ]] && reload=$(./scripts/reload.sh)
 
 # Get icon for current tournament if present
 [[ -f "images/tournaments/${seasonYear}.png" ]] && tournamentIcon="${seasonYear}" || tournamentIcon="fifa"
