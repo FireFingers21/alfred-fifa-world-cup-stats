@@ -1532,7 +1532,7 @@ Configure the [Hotkeys](https://www.alfredapp.com/help/workflows/triggers/hotkey
 		</dict>
 	</array>
 	<key>version</key>
-	<string>2026.6.3</string>
+	<string>2026.6.4</string>
 	<key>webaddress</key>
 	<string>https://github.com/FireFingers21/alfred-fifa-world-cup-stats</string>
 </dict>
