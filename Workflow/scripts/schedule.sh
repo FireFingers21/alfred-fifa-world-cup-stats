@@ -37,6 +37,9 @@ jq -cs \
     "variables": { "keyword": $alfred_workflow_keyword },
     "skipknowledge": true,
 	"items": (if (length != 0) then
+	    (now-86400|strflocaltime("%y%m%d")|tonumber) as $yesterDate |
+	    (now|strflocaltime("%y%m%d")|tonumber) as $toDate |
+	    (now+86400|strflocaltime("%y%m%d")|tonumber) as $tommDate |
 		.[].Results | map(
 		(.Home | .ShortClubName // .TeamName[0].Description // "") as $homeClubName |
 		(.Away | .ShortClubName // .TeamName[0].Description // "") as $awayClubName |
@@ -60,6 +63,7 @@ jq -cs \
                 (if ((.StageName[0].Description|ascii_downcase) != "first stage") then "knockout" else "" end),
                 ($Date | strflocaltime("\"%B %d\"%e\"")),
                 (if ($isNow) then "live now" elif ($isDone) then "finished done" else "upcoming" end),
+                (($Date|strflocaltime("%y%m%d")|tonumber) as $mDate | if ($mDate == $yesterDate) then "yesterday" elif ($mDate == $toDate) then "today" elif ($mDate == $tommDate) then "tomorrow" else "" end),
                 (if ($isFavourite) then "favourite" else "" end)
             ] | map(select(.)) | join(" "),
 			"icon": { "path": "images/\(if ($isFavourite) then "favourite" else $tournamentIcon end)\(if $isNow then "live" elif $isDone then "done" else "" end).png" },
