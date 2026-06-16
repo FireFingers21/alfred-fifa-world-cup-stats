@@ -5,13 +5,19 @@ currentYear="$(date +%Y)"
 seasonYear="$((currentYear - (currentYear - 1930) % 4))"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
 
-# Limit Auto Update
-[[ -f "${seasonDir}/schedule.json" ]] && gamesFinished="$(jq '.Results | all(.OfficialityStatus == 1)' "${seasonDir}/schedule.json")"
+# Limit Auto Update & set condition for live scores
+if [[ -f "${seasonDir}/schedule.json" ]]; then
+    scheduleData=($(jq -r '[.Results | all(.OfficialityStatus == 1), all(.MatchStatus <= 1 and ((now - (.Date|fromdate)) > 3600 or (now - (.Date|fromdate)) < 0)), .[0].IdSeason] | join(" ")' "${seasonDir}/schedule.json"))
+    gamesFinished="${scheduleData[1]}"
+fi
 
 # Auto Update
 set -o extendedglob
 [[ -f ${alfred_workflow_data}/*/*(#i)schedule.json(#qNY1) && "${gamesFinished:=false}" = false ]] \
 && [[ "$(date -r "${alfred_workflow_data}" +%s)" -lt "$(date -v -"${autoUpdate}"M +%s)" || ! -d "${seasonDir}" ]] && reload=$(./scripts/reload.sh)
+
+# Generate Live Scores
+[[ "${scheduleData[2]}" == false && "$(date -r "${seasonDir}/schedule.json" +%s)" -lt "$(date -v -15S +%s)" ]] && curl -sf --compressed --connect-timeout 5 -L "https://api.fifa.com/api/v3/calendar/matches?language=en&count=500&idSeason=${scheduleData[3]}" -o "${seasonDir}/schedule.json"
 
 # Get icon for current tournament if present
 [[ -f "images/tournaments/${seasonYear}.png" ]] && tournamentIcon="${seasonYear}" || tournamentIcon="fifa"
