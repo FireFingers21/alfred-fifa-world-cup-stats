@@ -11,12 +11,12 @@ function getSeason {
     seasonDir="${alfred_workflow_data}/${seasonData[1]}"
 }
 [[ -f "${seasons_file}" ]] && getSeason
-[[ "${seasonData[1]}" -eq "${seasonYear}" ]] && downloadStatus=1 || curl -sf --compressed --connect-timeout 10 -L "https://api.fifa.com/api/v3/calendar/matches?language=en&count=1&IdCompetition=17&from=${seasonYear}-01-01" -o "${seasons_file}" && downloadStatus=1 && getSeason
+[[ "${seasonData[1]}" -eq "${seasonYear}" ]] && downloadStatus=1 || curl -sf --compressed --connect-timeout 5 -L "https://api.fifa.com/api/v3/calendar/matches?language=en&count=1&IdCompetition=17&from=${seasonYear}-01-01" -o "${seasons_file}" && downloadStatus=1 && getSeason
 
 # Get season standings, schedule, and stats
 if [[ -n "${downloadStatus}" ]]; then
     mkdir -p "${seasonDir}"
-    curl -sf --compressed --parallel --connect-timeout 10 \
+    curl -sf --compressed --parallel --max-time 10 \
         -L "https://api.fifa.com/api/v3/calendar/17/${seasonData[2]}/${seasonData[3]}/standing?language=en&count=200" -o "${seasonDir}/standings.json" \
         -L "https://api.fifa.com/api/v3/calendar/matches?language=en&count=500&idSeason=${seasonData[2]}" -o "${seasonDir}/schedule.json" \
         -L "https://fdh-api.fifa.com/v1/stats/season/${seasonData[2]}/teams.json" -o "${seasonDir}/stats.json"

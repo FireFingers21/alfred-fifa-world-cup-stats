@@ -43,11 +43,10 @@ jq -cs \
             ] | map(select(.)) | join(" "),
 			"icon": { "path": "\($icons_dir)/\(.Team.IdCountry).png" },
 			"text": { "copy": .Team.ShortClubName },
-			"variables": { "teamId": .IdTeam, "countryId": .Team.IdCountry, "groupName": .Group[0].Description, "teamName": .Team.ShortClubName, "seq": .Position },
-			"mods": {"cmd+shift": {
-			    "subtitle": "⇧⌘↩ \(if ($isFavourite) then "Unset" else "Set" end) Favourite Team",
-				"variables": { "favTeamNew": .Team.ShortClubName }
-			}}
+			"variables": { "favTeamNew": .Team.ShortClubName, "teamId": .IdTeam, "countryId": .Team.IdCountry, "groupName": .Group[0].Description, "teamName": .Team.ShortClubName, "seq": .Position },
+			"mods": {
+			    "cmd+shift": {"subtitle": "⇧⌘↩ \(if ($isFavourite) then "Unset" else "Set" end) Favourite Team"}
+			}
 		}) | ([
 		    (unique_by(.variables.groupName)[] | select((.variables.seq) == 1)) | (.variables.groupName) as $groupName | ({
 				"title":"————————  \($groupName)  ————————",
