@@ -6,7 +6,7 @@ seasonYear="$((currentYear - (currentYear - 1930) % 4))"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
 
 # Limit Auto Update
-[[ -f "${seasonDir}/schedule.json" ]] && gamesFinished="$(jq '.Results | all(.OfficialityStatus == 1)' "${seasonDir}/schedule.json")"
+[[ -f "${seasonDir}/schedule.json" ]] && gamesFinished="$(jq '.Results | all(.OfficialityStatus > 0)' "${seasonDir}/schedule.json")"
 
 # Auto Update
 set -o extendedglob

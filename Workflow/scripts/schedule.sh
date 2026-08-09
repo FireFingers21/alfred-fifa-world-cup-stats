@@ -5,11 +5,8 @@ currentYear="$(date +%Y)"
 seasonYear="$((currentYear - (currentYear - 1930) % 4))"
 seasonDir="${alfred_workflow_data}/${seasonYear}"
 
-# Limit Auto Update & set condition for live scores
-if [[ -f "${seasonDir}/schedule.json" ]]; then
-    scheduleData=($(jq -r '[.Results | all(.OfficialityStatus == 1), all(.MatchStatus <= 1 and ((now - (.Date|fromdate)) > 3600 or (now - (.Date|fromdate)) < 0)), .[0].IdSeason] | join(" ")' "${seasonDir}/schedule.json"))
-    gamesFinished="${scheduleData[1]}"
-fi
+# Limit Auto Update
+[[ -f "${seasonDir}/schedule.json" ]] && gamesFinished="$(jq '.Results | all(.OfficialityStatus > 0)' "${seasonDir}/schedule.json")"
 
 # Auto Update
 set -o extendedglob
